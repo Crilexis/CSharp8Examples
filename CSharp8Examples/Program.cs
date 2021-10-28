@@ -44,12 +44,6 @@ namespace CSharp8Examples
 
                 string option = Console.ReadLine();
 
-                PrefenrenciasPessoais prefenrencias = new PrefenrenciasPessoais
-                {
-                    Apelido = "Nara",
-                    DiasDaSemana = DiasDaSemana.Sexta
-                };
-
                 Action vaiFilhao = option.Trim() switch
                 {
                     "0" => Indexes,
@@ -107,7 +101,9 @@ namespace CSharp8Examples
             foreach (var item in teachers[2..^2])
                 Console.WriteLine(item);
 
-            Range sasTeam = 0..3;
+            (int a, int b) = (0, 3);
+
+            Range sasTeam = a..b;
 
             foreach (var item in teachers[sasTeam])
                 Console.WriteLine(item);
@@ -202,6 +198,17 @@ namespace CSharp8Examples
             if (input is string { Length: >= 5 } s5)
                 return s5[0..5];
 
+            if(input != null)
+            {
+                if(input.GetType() == typeof(string))
+                {
+                    if(((string)input).Length > 5)
+                    {
+                        return ((string)input).Substring(0, 5);
+                    }
+                }
+            }
+
             if (input is string s)
                 return s;
 
@@ -219,8 +226,7 @@ namespace CSharp8Examples
 
         public record Address(string State);
 
-        public static decimal ComputeSalesTax(Address location, decimal salePrice) =>
-        location switch
+        public static decimal ComputeSalesTax(Address location, decimal salePrice) => location switch
         {
             { State: "WA" } => salePrice * 0.06M,
             { State: "MN" } => salePrice * 0.075M,
@@ -287,6 +293,7 @@ namespace CSharp8Examples
             Console.WriteLine($"{alphabetStart.Alpha}, {alphabetStart.Beta}");
 
             static (int min, int max) Range(int[] array) => (array.Min(), array.Max());
+
             int[] numbers = { 1, 2, 3, 5, 6, 7 };
 
             (int min, int max) = Range(numbers);
@@ -294,11 +301,25 @@ namespace CSharp8Examples
             Console.WriteLine(min);
 
             (int min, int max) b = (numbers.Min(), numbers.Max());
-            Console.WriteLine(b);            
+            Console.WriteLine(b);
 
             (_, max) = Range(numbers.Where(x => x < 3).ToArray());
             Console.WriteLine(max);
             Console.WriteLine(min);
+        }
+
+        static (double Sum, int Count) SumAndCount(IEnumerable<int> numbers)
+        {
+            int sum = 0;
+            int count = 0;
+
+            foreach (int number in numbers)
+            {
+                sum += number;
+                count++;
+            }
+
+            return (sum, count);
         }
 
         static void DeconstructorsPositionPatterns()
@@ -397,19 +418,7 @@ namespace CSharp8Examples
             double.NaN => "Unknown",
         };
 
-        static (double Sum, int Count) SumAndCount(IEnumerable<int> numbers)
-        {
-            int sum = 0;
-            int count = 0;
-
-            foreach (int number in numbers)
-            {
-                sum += number;
-                count++;
-            }
-
-            return (sum, count);
-        }
+        
 
         public record Point2D(int X, int Y);
         public record Point3D(int X, int Y, int Z);
@@ -431,6 +440,13 @@ namespace CSharp8Examples
         public record Student(string FirstName, string LastName, int Grade) : Person(FirstName, LastName);
         public record Cleaner(string FirstName, string LastName, string Function) : Person(FirstName, LastName);
 
+        public record Gardener(string FirstName, string LastName) : Person(FirstName, LastName)
+        {
+            public void Deconstruct(out string x, out string y, out double z) => (x, y, z) = (FirstName, LastName, Payment);
+
+            public double Payment { get; set; }
+        }
+
         static void Records()
         {
             Person teacher = new Teacher("Nancy", "Davolio", 3);
@@ -445,6 +461,11 @@ namespace CSharp8Examples
 
             var (firstName, lastName) = teacher;
             Console.WriteLine($"{firstName}, {lastName}");
+
+            Gardener guilherme = new Gardener("Guilherme", "Tragueta") { Payment = 0 };
+            guilherme.Payment = 10;
+
+            (string n, string s, double p) = guilherme;
 
             var (fName, lName, grade) = (Teacher)teacher;
             Console.WriteLine($"{fName}, {lName}, {grade}");
